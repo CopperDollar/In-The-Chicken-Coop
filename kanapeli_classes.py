@@ -3,12 +3,16 @@ from pygame import mixer
 
 #pixabay Keyframe_Audio: Winner
 #Chicken Single Alarm Call
+#Pelin päättyminen, kun energia=0 tai kun aikamääre täyttyy
+#Aloitus- ja lopetusnäyttö
+#kana ei menetä energiaa, kun osuu viholliskanan perään
+#Lisäkenttiä?
 
 WIDTH = 700
 HEIGHT = 700
 
 APPEAR_INTERVAL = 20
-
+clock_active = False
 
 
 
@@ -521,242 +525,211 @@ class Button(Sprite):
 
                          
         
-        
-def menu():
+def main():
+    state = "MENU"
     pygame.init()
-    bg_img = pygame.image.load("background.png")
-    bg_img = pygame.transform.scale(bg_img,(700,700))
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    play_button = Button()
-    quit_button = Button()
-    running = True
 
-    
-    while running:
+    def menu():
+        bg_img = pygame.image.load("background.png")
+        bg_img = pygame.transform.scale(bg_img,(700,700))
+        screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        play_button = Button()
+        quit_button = Button()
         
-        screen.blit(bg_img,(0,0))                     
-        pygame.event.pump()
-        play_button.draw(screen)
-        quit_button.draw(screen)   
-        pygame.display.flip()
+        running = True
         
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                pygame.quit()
-            if play_button.play_rect.collidepoint(pygame.mouse.get_pos()):
-                play_button.change_colour()
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    main_game()
-            if quit_button.quit_rect.collidepoint(pygame.mouse.get_pos()):
-                quit_button.change_colour()
-                if event.type == pygame.MOUSEBUTTONDOWN:
+        while running:
+            screen.blit(bg_img,(0,0))                     
+            pygame.event.pump()
+            play_button.draw(screen)
+            quit_button.draw(screen)   
+            pygame.display.flip()
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     running = False
                     pygame.quit()
+                if play_button.play_rect.collidepoint(pygame.mouse.get_pos()):
+                    play_button.change_colour()
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        game()
+                if quit_button.quit_rect.collidepoint(pygame.mouse.get_pos()):
+                    quit_button.change_colour()
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        running = False
+                        pygame.quit()
         
         
 
-def main_game():
+    def game():
 
-    pygame.init()
-    bg_img = pygame.image.load("background.png")
-    bg_img = pygame.transform.scale(bg_img,(700,700))
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.mixer.init()
-    pygame.mixer.music.load("background_music.mp3") 
-    pygame.mixer.music.play()
-    clock = pygame.time.Clock()
-    
-    foxes = pygame.sprite.Group()
+        bg_img = pygame.image.load("background.png")
+        bg_img = pygame.transform.scale(bg_img,(700,700))
+        screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.mixer.init()
+        pygame.mixer.music.load("background_music.mp3") 
+        pygame.mixer.music.play()
+        
+        foxes = pygame.sprite.Group()
+
+        player = Player(300, 400)
+
+        #x-akseli, y-akseli, pituus, paksuus, maksimi-hp
+        health_bar = HealthBar(10, 10, 100, 30, 100)
+        
+        enemies = pygame.sprite.Group()
+        
+        enemy1 = Enemy(100, 343)
+        enemy2 = Enemy(100, 113)
+        enemy3 = Enemy(400, 543)
+        enemy4 = Enemy(600, 343)
+        enemy5 = Enemy(400, 13)
+        enemies.add(enemy1, enemy2, enemy3, enemy4, enemy5)
 
         
-    player = Player(300, 400)
-
-    #x-akseli, y-akseli, pituus, paksuus, maksimi-hp
-    health_bar = HealthBar(10, 10, 100, 30, 100)
-    
-    enemies = pygame.sprite.Group()
-    
-    enemy1 = Enemy(100, 343)
-    enemies.add(enemy1)
-
-    enemy2 = Enemy(100, 113)
-    enemies.add(enemy2)
-    
-    enemy3 = Enemy(400, 543)
-    enemies.add(enemy3)
-    
-    enemy4 = Enemy(600, 343)
-    enemies.add(enemy4)
-    
-    enemy5 = Enemy(400, 13)
-    enemies.add(enemy5)
-
-    
-    boxes = pygame.sprite.Group()
-    #1) mistä kohtaa boksit alkavat ja mihin loppuvat x-akselilla(vaakasuunta)
-    #2) miten pitkälle laitetaan x-akselille
-    #3) boksien etäisyys toisistaan
-    #4) boksien sijoittuminen ruudulla korkeussuunnassa
-    for bx in range(0,750,70):
-        boxes.add(Box(bx,630))
+        boxes = pygame.sprite.Group()
+        #1) mistä kohtaa boksit alkavat ja mihin loppuvat x-akselilla(vaakasuunta)
+        #2) miten pitkälle laitetaan x-akselille
+        #3) boksien etäisyys toisistaan
+        #4) boksien sijoittuminen ruudulla korkeussuunnassa
+        for bx in range(0,750,70):
+            boxes.add(Box(bx,630))
+            
         
-    
-    boxes.add(Box(100, 430)) #alarivi vas
-    boxes.add(Box(30, 430))
-    boxes.add(Box(170, 430))
-    
-    boxes.add(Box(100, 200)) #toinen rivi vas
-    boxes.add(Box(30, 200))
-    boxes.add(Box(170, 200))
-              
-    boxes.add(Box(670, 430)) #rivi oik
-    boxes.add(Box(600, 430))
-    boxes.add(Box(530, 430))
-    
-    
-    boxes.add(Box(380, 290)) #yksittäinen kesk
-    
-    boxes.add(Box(665, 250))
-    
-    
-    boxes.add(Box(500, 100)) #ylärivi keskellä
-    boxes.add(Box(430, 100))
-    boxes.add(Box(360, 100))
+        boxes.add(Box(100, 430)) #alarivi vas
+        boxes.add(Box(30, 430))
+        boxes.add(Box(170, 430))
+        
+        boxes.add(Box(100, 200)) #toinen rivi vas
+        boxes.add(Box(30, 200))
+        boxes.add(Box(170, 200))
+                  
+        boxes.add(Box(670, 430)) #rivi oik
+        boxes.add(Box(600, 430))
+        boxes.add(Box(530, 430))
+        
+        
+        boxes.add(Box(380, 290)) #yksittäinen kesk
+        
+        boxes.add(Box(665, 250))
+        
+        
+        boxes.add(Box(500, 100)) #ylärivi keskellä
+        boxes.add(Box(430, 100))
+        boxes.add(Box(360, 100))
 
-    
-    eggs = pygame.sprite.Group()
+        
+        eggs = pygame.sprite.Group()
 
-    for egg in range(5):
-        egg = Egg(player,boxes)
-        eggs.add(egg)
-    
-    nests = pygame.sprite.Group()
-    
-    nest1 = Nest(185, 380)
-    nests.add(nest1)
-    
-    nest2 = Nest(185, 150)
-    nests.add(nest2)
-    
-    nest3 = Nest(340, 50)
-    nests.add(nest3)
-    
-    nest4 = Nest(520, 50)
-    nests.add(nest4)
-    
-    nest5 = Nest(515, 380)
-    nests.add(nest5)
- 
+        for egg in range(5):
+            egg = Egg(player,boxes)
+            eggs.add(egg)
+        
+        nests = pygame.sprite.Group()
+        
+        nest1 = Nest(185, 380)
+        nests.add(nest1)
+        
+        nest2 = Nest(185, 150)
+        nests.add(nest2)
+        
+        nest3 = Nest(340, 50)
+        nests.add(nest3)
+        
+        nest4 = Nest(520, 50)
+        nests.add(nest4)
+        
+        nest5 = Nest(515, 380)
+        nests.add(nest5)
+     
 
-    score = Score(player,eggs)
+        score = Score(player,eggs)
 
 
-    fox1_appear_time = random.randrange(6000, 8000)
-    fox2_appear_time = 0
-    fox3_appear_time = 0
+        fox1_appear_time = random.randrange(6000, 8000)
+        fox2_appear_time = 0
+        fox3_appear_time = 0
+        
+        running = True
+        fox1_appeared = False
+        fox2_appeared = False
+        fox3_appeared = False
+        
+        while running:
+            clock = pygame.time.Clock()
+            clock.tick(40)  
+            time_now = pygame.time.get_ticks()
+            screen.blit(bg_img,(0,0))                   
+            pygame.event.pump()
+            boxes.draw(screen)
+            nests.draw(screen)
+            player.update(boxes, enemies, health_bar, foxes)
+            player.draw(screen)
+            score.update(player,eggs)
+            for enemy in enemies:
+                enemy.update(boxes, nests)
+                enemy.draw(screen)
+            if time_now >= fox1_appear_time and fox1_appeared == False:
+                fox1 = Fox(0, 280)
+                foxes.add(fox1)
+                fox1_appeared = True
+            if fox1_appeared == True and fox2_appeared == False:
+                if time_now - fox1_appear_time > 500:
+                    fox2_appear_time = time_now
+                    fox2 = Fox(0, 280)
+                    foxes.add(fox2)
+                    fox2_appeared = True
+            if fox2_appeared == True and fox3_appeared == False:
+                if time_now - fox2_appear_time > 1000:
+                    fox3_appear_time = time_now
+                    fox3 = Fox(0, 280)
+                    foxes.add(fox3)
+                    fox3_appeared = True
+            foxes.draw(screen)
+            foxes.update(boxes, screen)
+            health_bar.draw(screen)
+            eggs.update(boxes,eggs)
+            eggs.draw(screen)
+            score.draw(screen)
+            
+            pygame.display.flip()
+
+
+            
+            
+            
+            if player.rect.left < 0:
+                player.rect.left = 0
+            if player.rect.right > WIDTH:
+                player.rect.right = WIDTH
+            if player.rect.top <= 0:
+                player.rect.top = 0
+            if player.rect.bottom >= HEIGHT:
+                player.rect.bottom = HEIGHT
+                    
+            
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    pygame.quit()
     
+
     running = True
-    fox1_appeared = False
-    fox2_appeared = False
-    fox3_appeared = False
-    
     while running:
-        time_now = pygame.time.get_ticks()
-        screen.blit(bg_img,(0,0))                   
-        pygame.event.pump()
-        boxes.draw(screen)
-        nests.draw(screen)
-        player.update(boxes, enemies, health_bar, foxes)
-        player.draw(screen)
-        score.update(player,eggs)
-        for enemy in enemies:
-            enemy.update(boxes, nests)
-            enemy.draw(screen)
-        if time_now >= fox1_appear_time and fox1_appeared == False:
-            fox1 = Fox(0, 280)
-            foxes.add(fox1)
-            fox1_appeared = True
-        if fox1_appeared == True and fox2_appeared == False:
-            if time_now - fox1_appear_time > 500:
-                fox2_appear_time = time_now
-                fox2 = Fox(0, 280)
-                foxes.add(fox2)
-                fox2_appeared = True
-        if fox2_appeared == True and fox3_appeared == False:
-            if time_now - fox2_appear_time > 1000:
-                fox3_appear_time = time_now
-                fox3 = Fox(0, 280)
-                foxes.add(fox3)
-                fox3_appeared = True
-        foxes.draw(screen)
-        foxes.update(boxes, screen)
-        health_bar.draw(screen)
-        eggs.update(boxes,eggs)
-        eggs.draw(screen)
-        score.draw(screen)
-        
-        pygame.display.flip()
-
-
-        clock.tick(40)
-        
-        
-        if player.rect.left < 0:
-            player.rect.left = 0
-        if player.rect.right > WIDTH:
-            player.rect.right = WIDTH
-        if player.rect.top <= 0:
-            player.rect.top = 0
-        if player.rect.bottom >= HEIGHT:
-            player.rect.bottom = HEIGHT
-                
-        
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                pygame.quit()
-
+        #state = ""
+    
+        if state == "MENU":
+            menu()
+        elif state == "GAME":
+            game()
+        elif state == "ENDING":
+            ending()
 
 #if __name__ == "__main__":
-    #main_game()
+    #main()
 
 
 
-menu()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+main()
 
