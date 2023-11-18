@@ -528,6 +528,8 @@ class Button(Sprite):
 def main():
     state = "MENU"
     pygame.init()
+    
+
 
     def menu():
         bg_img = pygame.image.load("background.png")
@@ -656,8 +658,7 @@ def main():
         fox3_appeared = False
         
         while running:
-            clock = pygame.time.Clock()
-            clock.tick(40)  
+            clock = pygame.time.Clock()  
             time_now = pygame.time.get_ticks()
             screen.blit(bg_img,(0,0))                   
             pygame.event.pump()
@@ -694,7 +695,7 @@ def main():
             
             pygame.display.flip()
 
-
+            clock.tick(40)
             
             
             
@@ -713,10 +714,13 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
                     pygame.quit()
+                    
+
     
 
     running = True
     while running:
+        
     
         if state == "MENU":
             menu()
@@ -725,7 +729,11 @@ def main():
         elif state == "ENDING":
             ending()
 
+#if __name__ == "__main__":
+    #main()
+
 
 
 main()
+
 
