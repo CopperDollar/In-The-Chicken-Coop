@@ -717,7 +717,6 @@ def main():
 
     running = True
     while running:
-        #state = ""
     
         if state == "MENU":
             menu()
@@ -725,9 +724,6 @@ def main():
             game()
         elif state == "ENDING":
             ending()
-
-#if __name__ == "__main__":
-    #main()
 
 
 
