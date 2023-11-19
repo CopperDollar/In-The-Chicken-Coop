@@ -4,16 +4,13 @@ from pygame import mixer
 #pixabay Keyframe_Audio: Winner
 #Chicken Single Alarm Call
 #Pelin päättyminen, kun energia=0 tai kun aikamääre täyttyy
-#Aloitus- ja lopetusnäyttö
+#lopetusnäyttö
 #kana ei menetä energiaa, kun osuu viholliskanan perään
 #Lisäkenttiä?
 
 WIDTH = 700
 HEIGHT = 700
-
 APPEAR_INTERVAL = 20
-clock_active = False
-
 
 
 
@@ -42,8 +39,6 @@ class Sprite(pygame.sprite.Sprite):
             self.animation_index = 0
     
 
-    
-
 class Player(Sprite):
     def __init__(self, x, y):
         super().__init__("p1_walk01.png", x, y)
@@ -65,7 +60,6 @@ class Player(Sprite):
            # pygame.image.load("hit_fox04.png")]
         
 
-        
         self.walk_cycle = [pygame.image.load(f"p1_walk{i:0>2}.png") for i in range(1,5)]
         self.animation_index = 0
         self.facing_left = False
@@ -87,8 +81,7 @@ class Player(Sprite):
         self.image = self.jump_image
         if self.facing_left:
             self.image = pygame.transform.flip(self.image, True, False)   
-
-            
+          
     
     def check_collision_with_boxes(self, x, y, boxes):
         self.rect.move_ip([x, y])
@@ -110,9 +103,7 @@ class Player(Sprite):
         self.rect.move_ip([-x, -y])
         return collide_enemy
         
-            
-    
-    
+
     def check_collision_with_fox(self, x, y, foxes):
         self.rect.move_ip([x, y])
         collide_fox = pygame.sprite.spritecollide(self, foxes, False)
@@ -564,13 +555,15 @@ def main():
         
 
     def game():
-
+        
+        start_time = 0
         bg_img = pygame.image.load("background.png")
         bg_img = pygame.transform.scale(bg_img,(700,700))
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.mixer.init()
         pygame.mixer.music.load("background_music.mp3") 
         pygame.mixer.music.play()
+        clock = pygame.time.Clock()
         
         foxes = pygame.sprite.Group()
 
@@ -658,7 +651,8 @@ def main():
         fox3_appeared = False
         
         while running:
-            clock = pygame.time.Clock()  
+            if start_time == 0:
+                start_time = pygame.time.get_ticks()
             time_now = pygame.time.get_ticks()
             screen.blit(bg_img,(0,0))                   
             pygame.event.pump()
@@ -670,18 +664,19 @@ def main():
             for enemy in enemies:
                 enemy.update(boxes, nests)
                 enemy.draw(screen)
-            if time_now >= fox1_appear_time and fox1_appeared == False:
+            if time_now - start_time >= fox1_appear_time and fox1_appeared == False:
+                fox1_appear_time = time_now
                 fox1 = Fox(0, 280)
                 foxes.add(fox1)
                 fox1_appeared = True
             if fox1_appeared == True and fox2_appeared == False:
-                if time_now - fox1_appear_time > 500:
+                if time_now - fox1_appear_time > 1000:
                     fox2_appear_time = time_now
                     fox2 = Fox(0, 280)
                     foxes.add(fox2)
                     fox2_appeared = True
             if fox2_appeared == True and fox3_appeared == False:
-                if time_now - fox2_appear_time > 1000:
+                if time_now - fox2_appear_time > 2000:
                     fox3_appear_time = time_now
                     fox3 = Fox(0, 280)
                     foxes.add(fox3)
@@ -716,8 +711,6 @@ def main():
                     pygame.quit()
                     
 
-    
-
     running = True
     while running:
         
@@ -735,5 +728,3 @@ def main():
 
 
 main()
-
-
