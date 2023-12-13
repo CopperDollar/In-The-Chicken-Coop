@@ -3,14 +3,13 @@ from pygame import mixer
 
 #pixabay Keyframe_Audio: Winner
 #Chicken Single Alarm Call
-#Pelin päättyminen, kun energia=0 tai kun aikamääre täyttyy
-#lopetusnäyttö
 #kana ei menetä energiaa, kun osuu viholliskanan perään
-#Lisäkenttiä?
+#ketut ilmestyvät ruudun alkuun, vaikka on ending()
 
 WIDTH = 700
 HEIGHT = 700
 APPEAR_INTERVAL = 20
+pause = False
 
 
 
@@ -43,28 +42,15 @@ class Player(Sprite):
     def __init__(self, x, y):
         super().__init__("p1_walk01.png", x, y)
         self.stand_image = self.image
-        self.jump_image = pygame.image.load("p1_jump.png")
-        #self.enemy_hit_cycle = [pygame.image.load(f"hit_image{i:0>2}.png") for i in range(1,5)]
-        #self.fox_hit_cycle = [pygame.image.load(f"hit_fox{i:0>2}.png") for i in range(1,5)]
-        #self.enemy_hit_cycle = [
-            #pygame.image.load("hit_image01.png"),
-            #pygame.image.load("hit_image02.png")]
-        
-        self.enemy_hit_image = pygame.image.load("hit_image02.png")
-        self.fox_hit_image = pygame.image.load("hit_image02.png")
-        
-        #self.fox_hit_cycle = [
-           # pygame.image.load("hit_fox01.png"),
-            #pygame.image.load("hit_fox02.png"),
-           # pygame.image.load("hit_fox03.png"),
-           # pygame.image.load("hit_fox04.png")]
-        
-
+        self.jump_image = pygame.image.load("p1_jump.png")    
+        self.hit_image = pygame.image.load("hit_image02.png")
         self.walk_cycle = [pygame.image.load(f"p1_walk{i:0>2}.png") for i in range(1,5)]
+        self.ending_cycle = [pygame.image.load("p1_ending01.png"), pygame.image.load("p1_ending02.png"),
+            pygame.image.load("p1_ending03.png")]
         self.animation_index = 0
         self.facing_left = False
         
-        self.speed = 8
+        self.speed = 6
         self.jumpspeed = 23
         self.vsp = 0
         self.gravity = 1
@@ -73,15 +59,28 @@ class Player(Sprite):
         self.last_direction = "right"
         self.last_collision_time = 0
         self.hit_sound = pygame.mixer.Sound("hit_sound.wav")
-        #self.is_colliding_fox = False
-        #self.is_colliding_enemy = False
+        self.pause = False
+
 
         
     def jump_animation(self):
         self.image = self.jump_image
         if self.facing_left:
-            self.image = pygame.transform.flip(self.image, True, False)   
-          
+            self.image = pygame.transform.flip(self.image, True, False)
+    
+    def ending_animation(self):
+        if self.animation_index < len(self.ending_cycle):
+            self.image = self.ending_cycle[self.animation_index]
+            if self.facing_left:
+                self.image = pygame.transform.flip(self.image, True, False)
+
+            self.animation_index += 1
+            
+            if self.animation_index >= len(self.ending_cycle):
+                self.animation_index = 0
+
+        
+        
     
     def check_collision_with_boxes(self, x, y, boxes):
         self.rect.move_ip([x, y])
@@ -91,23 +90,21 @@ class Player(Sprite):
 
    
     def check_collision_with_enemy(self, x, y, enemies):
-        self.rect.move_ip([x, y])
+        #self.rect.move_ip([x, y])
         collide_enemy = pygame.sprite.spritecollide(self, enemies, False)
         if collide_enemy:
-            #self.is_colliding_enemy = True
-            print("terveisiä check_collision-metodista, osuma tuli kanaan")
             if self.facing_left:
-                self.image = pygame.transform.flip(self.enemy_hit_image, True, False)
+                self.image = pygame.transform.flip(self.hit_image, True, False)
             else:
-                self.image = self.enemy_hit_image
-        self.rect.move_ip([-x, -y])
+                self.image = self.hit_image
+        #self.rect.move_ip([-x, -y])
         return collide_enemy
         
 
     def check_collision_with_fox(self, x, y, foxes):
-        self.rect.move_ip([x, y])
+        #self.rect.move_ip([x, y])
         collide_fox = pygame.sprite.spritecollide(self, foxes, False)
-        self.rect.move_ip([-x, -y])
+        #self.rect.move_ip([-x, -y])
         return collide_fox
 
 
@@ -116,21 +113,9 @@ class Player(Sprite):
         collide_fox = self.check_collision_with_fox(0, 1, foxes)
         if collide_fox:
             if self.facing_left:
-                self.image = pygame.transform.flip(self.fox_hit_image, True, False)
+                self.image = pygame.transform.flip(self.hit_image, True, False)
             else:
-                self.image = self.fox_hit_image
-    
-    
-    #def fox_hit_animation(self, foxes):
-        #self.animation_update_rate = 3
-        #collide_fox = pygame.sprite.spritecollide(self, foxes, False)
-        #if collide_fox:
-            #if self.animation_index % self.animation_update_rate == 0:
-                #self.image = self.fox_hit_cycle[self.animation_index]
-                #if self.facing_left:
-                    #self.image = pygame.transform.flip(self.image, True, False)
-            #if self.animation_index < len(self.fox_hit_cycle)-1:
-                #self.animation_index += 1  
+                self.image = self.hit_image
         
         
     def increase_health(self, health_bar):
@@ -142,128 +127,129 @@ class Player(Sprite):
         collide_fox = self.check_collision_with_fox(0, 1, foxes)
         current_time = pygame.time.get_ticks()
         if collide_enemy or collide_fox:
-            print("terveisiä decrease_health-metodista, osuma tuli")
             if current_time - self.last_collision_time > 1000:
                 self.last_collision_time = current_time
                 health_bar.hp -= 25
-                print("terveisiä decrease_health-metodista, helaa lähti")
         return health_bar.hp
     
             
         
-    def update(self, boxes, enemies, health_bar, foxes):
-        hsp = 0 
-
-        collide_boxes = self.check_collision_with_boxes(0, 1, boxes)
-        collide_fox = self.check_collision_with_fox(0, 1, foxes)
-        
-        for fox in foxes:
-            if collide_fox:
-                self.is_colliding_fox = True
-                self.fox_hit_animation(foxes)            
-                self.decrease_health(enemies, foxes, health_bar)
-                self.hit_sound.play()
-
-
-        for enemy in enemies:
-            collide_enemy = self.check_collision_with_enemy(0, 1, pygame.sprite.Group(enemy))
-            
-            if collide_enemy:
-                if self.facing_left:
-                    self.image = pygame.transform.flip(self.enemy_hit_image, True, False)
-                else:
-                    self.image = self.enemy_hit_image
-                self.decrease_health(enemies, foxes, health_bar)
-                self.hit_sound.play()
-
-                    
-                if enemy.rect.x > self.rect.x:
-                    self.rect.x -= 20
-                elif enemy.rect.x < self.rect.x:
-                    self.rect.x += 20
-                if self.rect.x <= 0:
-                    enemy.rect.x += 20
-                if self.rect.x >= WIDTH - self.rect.width:
-                    enemy.rect.x -= 20
-                
-
-        on_ground = collide_boxes
-        
+    def update(self, boxes, enemies, health_bar, foxes, game_clock):
         key = pygame.key.get_pressed()
-        if key[pygame.K_LEFT]:
-            self.facing_left = True
-            if collide_enemy:
-                self.image = pygame.transform.flip(self.enemy_hit_image, True, False)
-            if collide_fox:
-                self.image = pygame.transform.flip(self.fox_hit_image, True, False)
-            else:
-                self.walk_animation()
-            hsp = -self.speed
-            self.last_direction = "left"
-            
-        elif key[pygame.K_RIGHT]:
-            self.facing_left = False
-            if collide_enemy:
-                self.image = self.enemy_hit_image
-            if collide_fox:
-                self.image = self.fox_hit_image
-            if not collide_enemy and not collide_fox:
-                self.walk_animation()
-            hsp = self.speed
-            self.last_direction = "right"
-            
-        else:
-            if self.last_direction == "left":
-                self.facing_left = True
-                if collide_enemy:
-                    self.image = pygame.transform.flip(self.enemy_hit_image, True, False)
-                if collide_fox:
-                    self.image = pygame.transform.flip(self.fox_hit_image, True, False)
-                else:
-                    self.image = pygame.transform.flip(self.stand_image, True, False)
-                    
-            elif self.last_direction == "right":
-                self.facing_left = False
-                if collide_enemy:
-                    self.image = self.enemy_hit_image
-                if collide_fox:
-                    self.image = self.fox_hit_image
-                else:
-                    self.image = self.stand_image
+        if key[pygame.K_p]:
+            self.pause = True
+        if key[pygame.K_o] and game_clock.update() > 0:
+            self.pause = False
+         
+        #if self.pause == True and game_clock.update() == 0:
+            #ending(self)
+        if self.pause == False:
+            hsp = 0 
 
-        
-        #prevent jumping in mid-air
-        if key[pygame.K_UP] and on_ground:
-            self.vsp = -self.jumpspeed
+            collide_boxes = self.check_collision_with_boxes(0, 1, boxes)
+            collide_fox = self.check_collision_with_fox(0, 1, foxes)
             
-        #if the up arrow key was pressed in the previous loop but...
-        #...is not longer pressed
-        #when that happens, cut off the player's jump by reducing its speed to min_jumpspeed
-        #then set self.prev_key to the current keyboard state in preparation for the next loop
-        
-        if self.prev_key[pygame.K_UP] and not key[pygame.K_UP]:
-            if self.vsp < -self.min_jumpspeed:
-                self.vsp = -self.min_jumpspeed
+            for fox in foxes:
+                if collide_fox:
+                    self.fox_hit_animation(foxes)            
+                    self.decrease_health(enemies, foxes, health_bar)
+                    self.hit_sound.play()
+
+
+            for enemy in enemies:
+                collide_enemy = self.check_collision_with_enemy(0, 1, pygame.sprite.Group(enemy))
                 
-        self.prev_key = key
-        
-        #gravity
-        if self.vsp < 10 and not on_ground:
-            if collide_fox and self.last_direction == "right":
-                self.image = self.fox_hit_image
-            if collide_fox and self.last_direction == "left":
-                self.image = pygame.transform.flip(self.fox_hit_image, True, False)
-            if not collide_fox:
-                self.jump_animation()
-            self.vsp += self.gravity
+                if collide_enemy:
+                    if self.facing_left:
+                        self.image = pygame.transform.flip(self.hit_image, True, False)
+                    else:
+                        self.image = self.hit_image
+                    self.decrease_health(enemies, foxes, health_bar)
+                    self.hit_sound.play()
+
+                        
+                    if enemy.rect.x > self.rect.x:
+                        self.rect.x -= 20
+                    elif enemy.rect.x < self.rect.x:
+                        self.rect.x += 20
+                    if self.rect.x <= 0:
+                        enemy.rect.x += 20
+                    if self.rect.x >= WIDTH - self.rect.width:
+                        enemy.rect.x -= 20
+                    
+
+            on_ground = collide_boxes
             
             
-        #stop falling when the ground is reached
-        if self.vsp > 0 and on_ground:
-            self.vsp = 0
+            if key[pygame.K_LEFT]:
+                self.facing_left = True
+                if collide_enemy or collide_fox:
+                    self.image = pygame.transform.flip(self.hit_image, True, False)
+                else:
+                    self.walk_animation()
+                hsp = -self.speed
+                self.last_direction = "left"
+                
+            elif key[pygame.K_RIGHT]:
+                self.facing_left = False
+                if collide_enemy or collide_fox:
+                    self.image = self.hit_image
+
+                if not collide_enemy and not collide_fox:
+                    self.walk_animation()
+                hsp = self.speed
+                self.last_direction = "right"
+                
+            else:
+                if self.last_direction == "left":
+                    self.facing_left = True
+                    if collide_enemy or collide_fox:
+                        self.image = pygame.transform.flip(self.hit_image, True, False)
+
+                    else:
+                        self.image = pygame.transform.flip(self.stand_image, True, False)
+                        
+                elif self.last_direction == "right":
+                    self.facing_left = False
+                    if collide_enemy or collide_fox:
+                        self.image = self.hit_image
+
+                    else:
+                        self.image = self.stand_image
+
             
-        #movement    
-        self.move(hsp,self.vsp, boxes, enemies)
+            #prevent jumping in mid-air
+            if key[pygame.K_UP] and on_ground:
+                self.vsp = -self.jumpspeed
+
+            #if the up arrow key was pressed in the previous loop but...
+            #...is not longer pressed
+            #when that happens, cut off the player's jump by reducing its speed to min_jumpspeed
+            #then set self.prev_key to the current keyboard state in preparation for the next loop
+            
+            if self.prev_key[pygame.K_UP] and not key[pygame.K_UP]:
+                if self.vsp < -self.min_jumpspeed:
+                    self.vsp = -self.min_jumpspeed
+                    
+            self.prev_key = key
+            
+            #gravity
+            if self.vsp < 10 and not on_ground:
+                if collide_fox and self.last_direction == "right":
+                    self.image = self.hit_image
+                if collide_fox and self.last_direction == "left":
+                    self.image = pygame.transform.flip(self.hit_image, True, False)
+                if not collide_fox:
+                    self.jump_animation()
+                self.vsp += self.gravity
+                
+                
+            #stop falling when the ground is reached
+            if self.vsp > 0 and on_ground:
+                self.vsp = 0
+                
+            #movement    
+            self.move(hsp,self.vsp, boxes, enemies)
         
         
     
@@ -506,20 +492,36 @@ class Button(Sprite):
         screen.blit(self.play_button, self.play_rect.topleft)
         screen.blit(self.quit_button, self.quit_rect.topleft)
     
+    
+
+class Game_clock():
+    
+    def __init__(self):
+        self.game_clock_font = pygame.font.SysFont(None,50)
+        self.game_clock = 3
+        self.elapsed_time = 0
         
-    def change_colour(self):
 
-        if self.play_rect.collidepoint(pygame.mouse.get_pos()):
-            self.play_button = self.play_button_dark
-        if self.quit_rect.collidepoint(pygame.mouse.get_pos()):
-            self.quit_button = self.quit_button_dark
+    
+    def update(self):
+        self.game_clock_text = self.game_clock_font.render(str(self.game_clock), True, (0, 0, 0))
+        if self.game_clock >= 0:
+            if pygame.time.get_ticks() - self.elapsed_time >= 1000:
+                self.elapsed_time = pygame.time.get_ticks()
+                self.game_clock -= 1
+        if self.game_clock <= 1:
+            self.game_clock = 0
+        return self.game_clock
+                
 
-                         
+ 
+ 
+    def draw(self, screen):
+        screen.blit(self.game_clock_text, (120, 10))
         
 def main():
     state = "MENU"
     pygame.init()
-    
 
 
     def menu():
@@ -543,15 +545,24 @@ def main():
                     running = False
                     pygame.quit()
                 if play_button.play_rect.collidepoint(pygame.mouse.get_pos()):
-                    play_button.change_colour()
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         game()
                 if quit_button.quit_rect.collidepoint(pygame.mouse.get_pos()):
-                    quit_button.change_colour()
                     if event.type == pygame.MOUSEBUTTONDOWN:
-                        running = False
+                        #running = False
                         pygame.quit()
         
+
+        
+    def ending(player):
+        player.pause = True
+        player.ending_animation()
+        
+        
+
+        
+    def game_over(player):
+        player.pause = True
         
 
     def game():
@@ -567,7 +578,7 @@ def main():
         
         foxes = pygame.sprite.Group()
 
-        player = Player(300, 400)
+        player = Player(380, 225)
 
         #x-akseli, y-akseli, pituus, paksuus, maksimi-hp
         health_bar = HealthBar(10, 10, 100, 30, 100)
@@ -604,7 +615,7 @@ def main():
         boxes.add(Box(530, 430))
         
         
-        boxes.add(Box(380, 290)) #yksittäinen kesk
+        boxes.add(Box(380, 290)) #yksittäinen keskellä
         
         boxes.add(Box(665, 250))
         
@@ -637,11 +648,11 @@ def main():
         nest5 = Nest(515, 380)
         nests.add(nest5)
      
-
+        game_clock = Game_clock()
         score = Score(player,eggs)
+        
 
-
-        fox1_appear_time = random.randrange(6000, 8000)
+        fox1_appear_time = random.randrange(2000, 3000)
         fox2_appear_time = 0
         fox3_appear_time = 0
         
@@ -649,6 +660,8 @@ def main():
         fox1_appeared = False
         fox2_appeared = False
         fox3_appeared = False
+        
+        
         
         while running:
             if start_time == 0:
@@ -658,11 +671,17 @@ def main():
             pygame.event.pump()
             boxes.draw(screen)
             nests.draw(screen)
-            player.update(boxes, enemies, health_bar, foxes)
+            player.update(boxes, enemies, health_bar, foxes, game_clock)
             player.draw(screen)
-            score.update(player,eggs)
+            if player.pause == False:
+                game_clock.update()
+            game_clock.draw(screen)
+            
+            if player.pause == False:
+                score.update(player,eggs)
             for enemy in enemies:
-                enemy.update(boxes, nests)
+                if player.pause == False:
+                    enemy.update(boxes, nests)
                 enemy.draw(screen)
             if time_now - start_time >= fox1_appear_time and fox1_appeared == False:
                 fox1_appear_time = time_now
@@ -670,29 +689,44 @@ def main():
                 foxes.add(fox1)
                 fox1_appeared = True
             if fox1_appeared == True and fox2_appeared == False:
-                if time_now - fox1_appear_time > 1000:
+                if time_now - fox1_appear_time > 1500:
                     fox2_appear_time = time_now
                     fox2 = Fox(0, 280)
                     foxes.add(fox2)
                     fox2_appeared = True
             if fox2_appeared == True and fox3_appeared == False:
-                if time_now - fox2_appear_time > 2000:
+                if time_now - fox2_appear_time > 3000:
                     fox3_appear_time = time_now
                     fox3 = Fox(0, 280)
                     foxes.add(fox3)
                     fox3_appeared = True
+            if player.pause == False:
+                foxes.update(boxes, screen)
             foxes.draw(screen)
-            foxes.update(boxes, screen)
             health_bar.draw(screen)
-            eggs.update(boxes,eggs)
+            if player.pause == False:
+                eggs.update(boxes,eggs)
             eggs.draw(screen)
             score.draw(screen)
             
+            
+            
+            #time_limit -= clock.tick()
+            #if time_limit <= 0:
+                #ending(player)
+            
+            #end the game when the time limit is reached
+            if player.pause == False and game_clock.update() == 0:
+                ending(player)
+            
+            if health_bar.hp == 0:
+                game_over(player)
+                
             pygame.display.flip()
 
-            clock.tick(40)
+            clock.tick(45)
             
-            
+    
             
             if player.rect.left < 0:
                 player.rect.left = 0
@@ -728,3 +762,10 @@ def main():
 
 
 main()
+
+
+
+
+
+
+
