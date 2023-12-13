@@ -498,7 +498,7 @@ class Game_clock():
     
     def __init__(self):
         self.game_clock_font = pygame.font.SysFont(None,50)
-        self.game_clock = 7
+        self.game_clock = 6
         self.elapsed_time = 0
         
 
@@ -506,11 +506,9 @@ class Game_clock():
     def update(self):
         self.game_clock_text = self.game_clock_font.render(str(self.game_clock), True, (0, 0, 0))
         if self.game_clock > 0:
-            if pygame.time.get_ticks() - self.elapsed_time >= 1000:
+            if pygame.time.get_ticks() - self.elapsed_time > 1000:
                 self.elapsed_time = pygame.time.get_ticks()
                 self.game_clock -= 1
-        if self.game_clock <= 1:
-            self.game_clock = 0
         return self.game_clock
                 
 
@@ -762,6 +760,7 @@ def main():
 
 
 main()
+
 
 
 
