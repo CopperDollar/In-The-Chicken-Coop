@@ -1,10 +1,13 @@
 import pygame, numpy, random
 from pygame import mixer
 
-#pixabay Keyframe_Audio: Winner
+#pixabay Keyframe_Audio: Winner (taustamusiikki)
+#pixabay Gewonnen2, WinSquare, Power up sparkle 2 (ending)
 #Chicken Single Alarm Call
 #kana ei menetä energiaa, kun osuu viholliskanan perään
 #ketut ilmestyvät ruudun alkuun, vaikka on ending()
+#quit-nappi ei toimi
+#new game -nappi
 
 WIDTH = 700
 HEIGHT = 700
@@ -117,10 +120,6 @@ class Player(Sprite):
             else:
                 self.image = self.hit_image
         
-        
-    def increase_health(self, health_bar):
-        pass
-    
     
     def decrease_health(self, enemies, foxes, health_bar):
         collide_enemy = self.check_collision_with_enemy(0, 1, enemies)
@@ -141,8 +140,7 @@ class Player(Sprite):
         if key[pygame.K_o] and game_clock.update() > 0:
             self.pause = False
          
-        #if self.pause == True and game_clock.update() == 0:
-            #ending(self)
+
         if self.pause == False:
             hsp = 0 
 
@@ -483,22 +481,24 @@ class Button(Sprite):
     def __init__(self):
         self.play_button = pygame.image.load("play_button.png")
         self.quit_button = pygame.image.load("quit_button.png")
-        self.play_button_dark = pygame.image.load("play_button02.png")
-        self.quit_button_dark = pygame.image.load("quit_button02.png")
+        self.new_game_button = pygame.image.load("new_game_button.png")
         self.play_rect = self.play_button.get_rect(topleft=(40, 300))
         self.quit_rect = self.quit_button.get_rect(topleft=(370, 300))
+        self.new_game_rect = self.new_game_button.get_rect(topleft=(400, 300))
+
+        
         
     def draw(self, screen):
         screen.blit(self.play_button, self.play_rect.topleft)
         screen.blit(self.quit_button, self.quit_rect.topleft)
-    
+        screen.blit(self.new_game_button, self.new_game_rect.topleft)
     
 
 class Game_clock():
     
     def __init__(self):
         self.game_clock_font = pygame.font.SysFont(None,50)
-        self.game_clock = 6
+        self.game_clock = 10
         self.elapsed_time = 0
         
 
@@ -512,14 +512,15 @@ class Game_clock():
         return self.game_clock
                 
 
- 
- 
+  
     def draw(self, screen):
         screen.blit(self.game_clock_text, (120, 10))
+        
         
 def main():
     state = "MENU"
     pygame.init()
+    pygame.mixer.init()
 
 
     def menu():
@@ -547,20 +548,53 @@ def main():
                         game()
                 if quit_button.quit_rect.collidepoint(pygame.mouse.get_pos()):
                     if event.type == pygame.MOUSEBUTTONDOWN:
-                        #running = False
                         pygame.quit()
         
 
         
-    def ending(player):
+    def ending(player, screen):
         player.pause = True
-        player.ending_animation()
+        #pygame.mixer.music.load("power_up_sparkle_2.mp3")
+        pygame.mixer.music.load("gewonnen.mp3")
+        pygame.mixer.music.play()
+        new_game_button = Button()
+        
+        
+        running = True
+        
+        while running:                     
+            player.ending_animation()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    pygame.quit()
+            new_game_button.draw(screen)
+            if new_game_button.new_game_rect.collidepoint(pygame.mouse.get_pos()):
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    game()
         
         
 
         
-    def game_over(player):
+    def game_over(player, screen):
         player.pause = True
+        pygame.mixer.music.load("game_over.mp3")
+        pygame.mixer.music.play()
+        new_game_button = Button()
+        
+        running = True
+        
+        while running:                     
+            pygame.event.pump()
+            pygame.display.flip()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    pygame.quit()
+            new_game_button.draw(screen)
+            if new_game_button.new_game_rect.collidepoint(pygame.mouse.get_pos()):
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    game()
         
 
     def game():
@@ -569,7 +603,6 @@ def main():
         bg_img = pygame.image.load("background.png")
         bg_img = pygame.transform.scale(bg_img,(700,700))
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.mixer.init()
         pygame.mixer.music.load("background_music.mp3") 
         pygame.mixer.music.play()
         clock = pygame.time.Clock()
@@ -645,6 +678,7 @@ def main():
         
         nest5 = Nest(515, 380)
         nests.add(nest5)
+        
      
         game_clock = Game_clock()
         score = Score(player,eggs)
@@ -701,6 +735,8 @@ def main():
             if player.pause == False:
                 foxes.update(boxes, screen)
             foxes.draw(screen)
+            if health_bar.hp == 0:
+                game_over(player, screen)
             health_bar.draw(screen)
             if player.pause == False:
                 eggs.update(boxes,eggs)
@@ -708,17 +744,13 @@ def main():
             score.draw(screen)
             
             
-            
-            #time_limit -= clock.tick()
-            #if time_limit <= 0:
-                #ending(player)
-            
+
             #end the game when the time limit is reached
             if player.pause == False and game_clock.update() == 0:
-                ending(player)
+                ending(player, screen)
             
             if health_bar.hp == 0:
-                game_over(player)
+                game_over(player, screen)
                 
             pygame.display.flip()
 
@@ -760,7 +792,6 @@ def main():
 
 
 main()
-
 
 
 
