@@ -6,7 +6,6 @@ from pygame import mixer
 #Chicken Single Alarm Call
 #kana ei menetä energiaa, kun osuu viholliskanan perään
 #ketut ilmestyvät ruudun alkuun, vaikka on ending()
-#quit-nappi ei toimi
 #new game -nappi
 
 WIDTH = 700
@@ -479,22 +478,22 @@ class Nest(Sprite):
         
         
 class Button(Sprite):
-    def __init__(self):
-        self.play_button = pygame.image.load("play_button.png")
-        self.quit_button = pygame.image.load("quit_button.png")
-        self.new_game_button = pygame.image.load("new_game_button.png")
-        self.play_rect = self.play_button.get_rect(topleft=(40, 300))
-        self.quit_rect = self.quit_button.get_rect(topleft=(370, 300))
-        self.new_game_rect = self.new_game_button.get_rect(topleft=(400, 300))
+    def __init__(self, image, x, y):
+        self.image = pygame.image.load(image)
+        self.rect = self.image.get_rect(topleft=(x, y))
+        #self.play_button = pygame.image.load("play_button.png")
+        #self.quit_button = pygame.image.load("quit_button.png")
+        #self.new_game_button = pygame.image.load("new_game_button.png")
+        #self.play_rect = self.play_button.get_rect(topleft=(40, 300))
+        #self.quit_rect = self.quit_button.get_rect(topleft=(370, 300))
+        #self.new_game_rect = self.new_game_button.get_rect(topleft=(400, 300))
 
         
         
     def draw(self, screen):
-        if state == "MENU":
-            screen.blit(self.play_button, self.play_rect.topleft)
-            screen.blit(self.quit_button, self.quit_rect.topleft)
-        elif state == "ENDING" or state == "GAME OVER":
-            screen.blit(self.new_game_button, self.new_game_rect.topleft)
+        screen.blit(self.image, self.rect.topleft)
+
+
     
 
 class Game_clock():
@@ -531,8 +530,8 @@ def main():
         bg_img = pygame.image.load("background.png")
         bg_img = pygame.transform.scale(bg_img,(700,700))
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        play_button = Button()
-        quit_button = Button()
+        play_button = Button("play_button.png", 40, 300)
+        quit_button = Button("quit_button.png", 370, 300)
         
         running = True
         
@@ -548,10 +547,10 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
                     pygame.quit()
-                if play_button.play_rect.collidepoint(pygame.mouse.get_pos()):
+                if play_button.rect.collidepoint(pygame.mouse.get_pos()):
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         game()
-                if quit_button.quit_rect.collidepoint(pygame.mouse.get_pos()):
+                if quit_button.rect.collidepoint(pygame.mouse.get_pos()):
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         pygame.quit()
         
@@ -562,7 +561,7 @@ def main():
         #pygame.mixer.music.load("power_up_sparkle_2.mp3")
         pygame.mixer.music.load("gewonnen.mp3")
         pygame.mixer.music.play()
-        new_game_button = Button()
+        new_game_button = Button("new_game_button.png", 200, 400)
         
         
         running = True
@@ -570,12 +569,15 @@ def main():
         while running:
             state = "ENDING"
             player.ending_animation()
+            pygame.event.pump()
+            pygame.display.flip()
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                     pygame.quit()
             new_game_button.draw(screen)
-            if new_game_button.new_game_rect.collidepoint(pygame.mouse.get_pos()):
+            if new_game_button.rect.collidepoint(pygame.mouse.get_pos()):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     game()
         
@@ -586,7 +588,7 @@ def main():
         player.pause = True
         pygame.mixer.music.load("game_over.mp3")
         pygame.mixer.music.play()
-        new_game_button = Button()
+        new_game_button = Button("new_game_button.png", 200, 400)
         
         running = True
         
@@ -599,7 +601,7 @@ def main():
                     running = False
                     pygame.quit()
             new_game_button.draw(screen)
-            if new_game_button.new_game_rect.collidepoint(pygame.mouse.get_pos()):
+            if new_game_button.rect.collidepoint(pygame.mouse.get_pos()):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     game()
         
@@ -800,6 +802,8 @@ def main():
 
 
 main()
+
+
 
 
 
