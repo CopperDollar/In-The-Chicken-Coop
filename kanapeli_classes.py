@@ -13,6 +13,7 @@ WIDTH = 700
 HEIGHT = 700
 APPEAR_INTERVAL = 20
 pause = False
+state = ""
 
 
 
@@ -489,9 +490,11 @@ class Button(Sprite):
         
         
     def draw(self, screen):
-        screen.blit(self.play_button, self.play_rect.topleft)
-        screen.blit(self.quit_button, self.quit_rect.topleft)
-        screen.blit(self.new_game_button, self.new_game_rect.topleft)
+        if state == "MENU":
+            screen.blit(self.play_button, self.play_rect.topleft)
+            screen.blit(self.quit_button, self.quit_rect.topleft)
+        elif state == "ENDING" or state == "GAME OVER":
+            screen.blit(self.new_game_button, self.new_game_rect.topleft)
     
 
 class Game_clock():
@@ -524,6 +527,7 @@ def main():
 
 
     def menu():
+        
         bg_img = pygame.image.load("background.png")
         bg_img = pygame.transform.scale(bg_img,(700,700))
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -533,6 +537,7 @@ def main():
         running = True
         
         while running:
+            state = "MENU"
             screen.blit(bg_img,(0,0))                     
             pygame.event.pump()
             play_button.draw(screen)
@@ -562,7 +567,8 @@ def main():
         
         running = True
         
-        while running:                     
+        while running:
+            state = "ENDING"
             player.ending_animation()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -584,7 +590,8 @@ def main():
         
         running = True
         
-        while running:                     
+        while running:
+            state = "GAME OVER"
             pygame.event.pump()
             pygame.display.flip()
             for event in pygame.event.get():
@@ -696,6 +703,7 @@ def main():
         
         
         while running:
+            state = "GAME"
             if start_time == 0:
                 start_time = pygame.time.get_ticks()
             time_now = pygame.time.get_ticks()
@@ -784,10 +792,10 @@ def main():
         elif state == "GAME":
             game()
         elif state == "ENDING":
-            ending()
+            ending(player, screen)
+        elif state == "GAME OVER":
+            game_over(player, screen)
 
-#if __name__ == "__main__":
-    #main()
 
 
 
