@@ -5,8 +5,7 @@ from pygame import mixer
 #pixabay Gewonnen2, WinSquare, Power up sparkle 2 (ending)
 #Chicken Single Alarm Call
 #kana ei menetä energiaa, kun osuu viholliskanan perään
-#ketut ilmestyvät ruudun alkuun, vaikka on ending()
-#new game -nappi
+#laskuriin jää 1
 
 WIDTH = 700
 HEIGHT = 700
@@ -50,6 +49,7 @@ class Player(Sprite):
         self.walk_cycle = [pygame.image.load(f"p1_walk{i:0>2}.png") for i in range(1,5)]
         self.ending_cycle = [pygame.image.load("p1_ending01.png"), pygame.image.load("p1_ending02.png"),
             pygame.image.load("p1_ending03.png")]
+        self.ending_image = pygame.image.load("p1_ending01.png")
         self.animation_index = 0
         self.facing_left = False
         
@@ -71,6 +71,13 @@ class Player(Sprite):
         if self.facing_left:
             self.image = pygame.transform.flip(self.image, True, False)
     
+    
+    def ending_animation2(self):
+        if self.facing_left:
+            self.image = pygame.transform.flip(self.ending_image, True, False)
+        else:
+            self.image = self.ending_image
+                
     def ending_animation(self):
         if self.animation_index < len(self.ending_cycle):
             self.image = self.ending_cycle[self.animation_index]
@@ -93,21 +100,17 @@ class Player(Sprite):
 
    
     def check_collision_with_enemy(self, x, y, enemies):
-        #self.rect.move_ip([x, y])
         collide_enemy = pygame.sprite.spritecollide(self, enemies, False)
         if collide_enemy:
             if self.facing_left:
                 self.image = pygame.transform.flip(self.hit_image, True, False)
             else:
                 self.image = self.hit_image
-        #self.rect.move_ip([-x, -y])
         return collide_enemy
         
 
     def check_collision_with_fox(self, x, y, foxes):
-        #self.rect.move_ip([x, y])
         collide_fox = pygame.sprite.spritecollide(self, foxes, False)
-        #self.rect.move_ip([-x, -y])
         return collide_fox
 
 
@@ -481,14 +484,7 @@ class Button(Sprite):
     def __init__(self, image, x, y):
         self.image = pygame.image.load(image)
         self.rect = self.image.get_rect(topleft=(x, y))
-        #self.play_button = pygame.image.load("play_button.png")
-        #self.quit_button = pygame.image.load("quit_button.png")
-        #self.new_game_button = pygame.image.load("new_game_button.png")
-        #self.play_rect = self.play_button.get_rect(topleft=(40, 300))
-        #self.quit_rect = self.quit_button.get_rect(topleft=(370, 300))
-        #self.new_game_rect = self.new_game_button.get_rect(topleft=(400, 300))
 
-        
         
     def draw(self, screen):
         screen.blit(self.image, self.rect.topleft)
@@ -508,7 +504,7 @@ class Game_clock():
     def update(self):
         self.game_clock_text = self.game_clock_font.render(str(self.game_clock), True, (0, 0, 0))
         if self.game_clock > 0:
-            if pygame.time.get_ticks() - self.elapsed_time > 1000:
+            if pygame.time.get_ticks() - self.elapsed_time >= 1000:
                 self.elapsed_time = pygame.time.get_ticks()
                 self.game_clock -= 1
         return self.game_clock
@@ -568,9 +564,10 @@ def main():
         
         while running:
             state = "ENDING"
-            player.ending_animation()
             pygame.event.pump()
             pygame.display.flip()
+            #player.image = player.ending_image
+            player.ending_animation()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
