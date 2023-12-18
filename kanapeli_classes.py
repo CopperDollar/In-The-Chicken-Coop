@@ -5,7 +5,8 @@ from pygame import mixer
 #pixabay Gewonnen2, WinSquare, Power up sparkle 2 (ending)
 #Chicken Single Alarm Call
 #kana ei menetä energiaa, kun osuu viholliskanan perään
-#laskuriin jää 1
+#digitaalinen kello
+#animaatio/kuva, kun tulee ending() tai game over()
 
 WIDTH = 700
 HEIGHT = 700
@@ -142,7 +143,7 @@ class Player(Sprite):
             self.pause = True
         if key[pygame.K_o] and game_clock.update() > 0:
             self.pause = False
-         
+
 
         if self.pause == False:
             hsp = 0 
@@ -252,7 +253,7 @@ class Player(Sprite):
             #movement    
             self.move(hsp,self.vsp, boxes, enemies)
         
-        
+
     
     def move(self, x, y, boxes, enemies):
         original_pos = self.rect.topleft
@@ -531,8 +532,9 @@ def main():
         bg_img = pygame.image.load("background.png")
         bg_img = pygame.transform.scale(bg_img,(700,700))
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        play_button = Button("play_button.png", 40, 300)
-        quit_button = Button("quit_button.png", 370, 300)
+        play_button = Button("play_button.png", 40, 500)
+        quit_button = Button("quit_button.png", 370, 500)
+        instructions_image = Button("instructions_image.png", 180, 100)
         
         running = True
         
@@ -541,7 +543,8 @@ def main():
             screen.blit(bg_img,(0,0))                     
             pygame.event.pump()
             play_button.draw(screen)
-            quit_button.draw(screen)   
+            quit_button.draw(screen)
+            instructions_image.draw(screen)
             pygame.display.flip()
             
             for event in pygame.event.get():
@@ -558,38 +561,37 @@ def main():
 
         
     def ending(player, screen):
+        
         player.pause = True
-        #pygame.mixer.music.load("power_up_sparkle_2.mp3")
         pygame.mixer.music.load("gewonnen.mp3")
         pygame.mixer.music.play()
         new_game_button = Button("new_game_button.png", 200, 400)
         
-        
         running = True
         
         while running:
-            state = "ENDING"
             pygame.event.pump()
-            pygame.display.flip()
+            state = "ENDING"
             player.ending_animation()
-
+            
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                     pygame.quit()
             new_game_button.draw(screen)
+            pygame.display.flip()
             if new_game_button.rect.collidepoint(pygame.mouse.get_pos()):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     game()
         
-        
+            
 
         
     def game_over(player, screen):
         player.pause = True
         pygame.mixer.music.load("game_over.mp3")
         pygame.mixer.music.play()
-        new_game_button = Button("new_game_button.png", 200, 400)
+        game_over_button = Button("game_over_button.png", 200, 400)
         
         running = True
         
@@ -601,8 +603,8 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
                     pygame.quit()
-            new_game_button.draw(screen)
-            if new_game_button.rect.collidepoint(pygame.mouse.get_pos()):
+            game_over_button.draw(screen)
+            if game_over_button.rect.collidepoint(pygame.mouse.get_pos()):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     game()
         
