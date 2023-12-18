@@ -498,11 +498,14 @@ class Game_clock():
         self.game_clock_font = pygame.font.SysFont(None,50)
         self.game_clock = 10
         self.elapsed_time = 0
+    
+    
+    def return_game_clock(self):
+        return self.game_clock
         
 
     
     def update(self):
-        self.game_clock_text = self.game_clock_font.render(str(self.game_clock), True, (0, 0, 0))
         if self.game_clock > 0:
             if pygame.time.get_ticks() - self.elapsed_time >= 1000:
                 self.elapsed_time = pygame.time.get_ticks()
@@ -512,7 +515,9 @@ class Game_clock():
 
   
     def draw(self, screen):
+        self.game_clock_text = self.game_clock_font.render(str(self.game_clock), True, (0, 0, 0))
         screen.blit(self.game_clock_text, (120, 10))
+        
         
         
 def main():
@@ -566,7 +571,6 @@ def main():
             state = "ENDING"
             pygame.event.pump()
             pygame.display.flip()
-            #player.image = player.ending_image
             player.ending_animation()
 
             for event in pygame.event.get():
@@ -716,6 +720,7 @@ def main():
                 game_clock.update()
             game_clock.draw(screen)
             
+            
             if player.pause == False:
                 score.update(player,eggs)
             for enemy in enemies:
@@ -742,9 +747,9 @@ def main():
             if player.pause == False:
                 foxes.update(boxes, screen)
             foxes.draw(screen)
+            health_bar.draw(screen)
             if health_bar.hp == 0:
                 game_over(player, screen)
-            health_bar.draw(screen)
             if player.pause == False:
                 eggs.update(boxes,eggs)
             eggs.draw(screen)
@@ -753,7 +758,7 @@ def main():
             
 
             #end the game when the time limit is reached
-            if player.pause == False and game_clock.update() == 0:
+            if player.pause == False and game_clock.return_game_clock() == 0:
                 ending(player, screen)
             
             if health_bar.hp == 0:
