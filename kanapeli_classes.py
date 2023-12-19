@@ -390,8 +390,11 @@ class Fox(Sprite):
         
         if on_ground:
             self.walk_animation()
-            self.hsp = 5 
-            self.rect.x += self.hsp
+            self.hsp = 5
+            if self.direction == 1:
+                self.rect.x += self.hsp
+            elif self.direction == -1:
+                self.rect.x -= self.hsp
 
             
             self.vsp = 0 
@@ -697,16 +700,19 @@ def main():
         score = Score(player,eggs)
         
 
-        fox1_appear_time = random.randrange(15000, 40000)
+        fox1_appear_time = random.randrange(15000, 20000)
         fox2_appear_time = 0
         fox3_appear_time = 0
+        fox3_appear_time = 0
+        fox4_appear_time = 0
+        fox5_appear_time = 0
         
         running = True
         fox1_appeared = False
         fox2_appeared = False
         fox3_appeared = False
-        
-        
+        fox4_appeared = False
+        fox5_appeared = False
         
         while running:
             state = "GAME"
@@ -732,21 +738,36 @@ def main():
                 enemy.draw(screen)
             if time_now - start_time >= fox1_appear_time and fox1_appeared == False:
                 fox1_appear_time = time_now
-                fox1 = Fox(0, 280)
+                fox1 = Fox(0, 535)
                 foxes.add(fox1)
                 fox1_appeared = True
             if fox1_appeared == True and fox2_appeared == False:
-                if time_now - fox1_appear_time > 1500:
+                if time_now - fox1_appear_time > 6000:
                     fox2_appear_time = time_now
-                    fox2 = Fox(0, 280)
+                    fox2 = Fox(0, 535)
                     foxes.add(fox2)
                     fox2_appeared = True
             if fox2_appeared == True and fox3_appeared == False:
-                if time_now - fox2_appear_time > 4000:
+                if time_now - fox2_appear_time > 8000:
                     fox3_appear_time = time_now
                     fox3 = Fox(0, 280)
                     foxes.add(fox3)
                     fox3_appeared = True
+            
+            if fox3_appeared == True and fox4_appeared == False:
+                if time_now - fox3_appear_time > 1500:
+                    fox4_appear_time = time_now
+                    fox4 = Fox(0, 280)
+                    foxes.add(fox4)
+                    fox4_appeared = True
+            
+            if fox4_appeared == True and fox5_appeared == False:
+                if time_now - fox4_appear_time > 4000:
+                    fox5_appear_time = time_now
+                    fox5 = Fox(0, 280)
+                    foxes.add(fox5)
+                    fox5_appeared = True
+            
             if player.pause == False:
                 foxes.update(boxes, screen)
             foxes.draw(screen)
@@ -807,6 +828,8 @@ def main():
 
 
 main()
+
+
 
 
 
