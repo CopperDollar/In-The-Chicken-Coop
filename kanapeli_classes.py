@@ -7,6 +7,8 @@ from pygame import mixer
 #kana ei menetä energiaa, kun osuu viholliskanan perään
 #digitaalinen kello
 #animaatio/kuva, kun tulee ending() tai game over()
+#new game kaataa koodin
+#munia ei aina ilmesty
 
 WIDTH = 700
 HEIGHT = 700
@@ -497,7 +499,7 @@ class Game_clock():
     
     def __init__(self):
         self.game_clock_font = pygame.font.SysFont(None,50)
-        self.game_clock = 10
+        self.game_clock = 50
         self.elapsed_time = 0
     
     
@@ -545,7 +547,7 @@ def main():
             play_button.draw(screen)
             quit_button.draw(screen)
             instructions_image.draw(screen)
-            pygame.display.flip()
+            
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -558,7 +560,7 @@ def main():
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         pygame.quit()
         
-
+            pygame.display.flip()
         
     def ending(player, screen):
         
@@ -579,12 +581,11 @@ def main():
                     running = False
                     pygame.quit()
             new_game_button.draw(screen)
-            pygame.display.flip()
             if new_game_button.rect.collidepoint(pygame.mouse.get_pos()):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     game()
         
-            
+            pygame.display.flip()
 
         
     def game_over(player, screen):
@@ -598,7 +599,6 @@ def main():
         while running:
             state = "GAME OVER"
             pygame.event.pump()
-            pygame.display.flip()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -607,6 +607,7 @@ def main():
             if game_over_button.rect.collidepoint(pygame.mouse.get_pos()):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     game()
+            pygame.display.flip()
         
 
     def game():
@@ -696,7 +697,7 @@ def main():
         score = Score(player,eggs)
         
 
-        fox1_appear_time = random.randrange(2000, 3000)
+        fox1_appear_time = random.randrange(15000, 40000)
         fox2_appear_time = 0
         fox3_appear_time = 0
         
@@ -741,7 +742,7 @@ def main():
                     foxes.add(fox2)
                     fox2_appeared = True
             if fox2_appeared == True and fox3_appeared == False:
-                if time_now - fox2_appear_time > 3000:
+                if time_now - fox2_appear_time > 4000:
                     fox3_appear_time = time_now
                     fox3 = Fox(0, 280)
                     foxes.add(fox3)
