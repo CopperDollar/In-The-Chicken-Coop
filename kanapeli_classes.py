@@ -7,7 +7,6 @@ from pygame import mixer
 #kana ei menetä energiaa, kun osuu viholliskanan perään
 #digitaalinen kello
 #animaatio/kuva, kun tulee ending() tai game over()
-#new game kaataa koodin
 #munia ei aina ilmesty
 
 WIDTH = 700
@@ -391,10 +390,8 @@ class Fox(Sprite):
         if on_ground:
             self.walk_animation()
             self.hsp = 5
-            if self.direction == 1:
-                self.rect.x += self.hsp
-            elif self.direction == -1:
-                self.rect.x -= self.hsp
+            self.rect.x += self.hsp
+
 
             
             self.vsp = 0 
@@ -700,7 +697,7 @@ def main():
         score = Score(player,eggs)
         
 
-        fox1_appear_time = random.randrange(15000, 20000)
+        fox1_appear_time = random.randrange(2000, 3000)
         fox2_appear_time = 0
         fox3_appear_time = 0
         fox3_appear_time = 0
@@ -742,27 +739,27 @@ def main():
                 foxes.add(fox1)
                 fox1_appeared = True
             if fox1_appeared == True and fox2_appeared == False:
-                if time_now - fox1_appear_time > 6000:
+                if time_now - fox1_appear_time >= 6000:
                     fox2_appear_time = time_now
                     fox2 = Fox(0, 535)
                     foxes.add(fox2)
                     fox2_appeared = True
             if fox2_appeared == True and fox3_appeared == False:
-                if time_now - fox2_appear_time > 8000:
+                if time_now - fox2_appear_time >= 8000:
                     fox3_appear_time = time_now
                     fox3 = Fox(0, 280)
                     foxes.add(fox3)
                     fox3_appeared = True
             
             if fox3_appeared == True and fox4_appeared == False:
-                if time_now - fox3_appear_time > 1500:
+                if time_now - fox3_appear_time >= 1500:
                     fox4_appear_time = time_now
                     fox4 = Fox(0, 280)
                     foxes.add(fox4)
                     fox4_appeared = True
             
             if fox4_appeared == True and fox5_appeared == False:
-                if time_now - fox4_appear_time > 4000:
+                if time_now - fox4_appear_time >= 4000:
                     fox5_appear_time = time_now
                     fox5 = Fox(0, 280)
                     foxes.add(fox5)
