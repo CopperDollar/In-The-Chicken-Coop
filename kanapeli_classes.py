@@ -74,12 +74,7 @@ class Player(Sprite):
             self.image = pygame.transform.flip(self.image, True, False)
     
     
-    def ending_animation2(self):
-        if self.facing_left:
-            self.image = pygame.transform.flip(self.ending_image, True, False)
-        else:
-            self.image = self.ending_image
-                
+
     def ending_animation(self):
         if self.animation_index < len(self.ending_cycle):
             self.image = self.ending_cycle[self.animation_index]
@@ -90,7 +85,13 @@ class Player(Sprite):
             
             if self.animation_index >= len(self.ending_cycle):
                 self.animation_index = 0
+                
 
+    def game_over_animation(self):
+        if self.facing_left:
+            self.image = pygame.transform.flip(self.hit_image, True, False)
+        else:
+            self.image = self.hit_image
         
         
     
@@ -499,7 +500,7 @@ class Game_clock():
     
     def __init__(self):
         self.game_clock_font = pygame.font.SysFont(None,50)
-        self.game_clock = 50
+        self.game_clock = 5
         self.elapsed_time = 0
     
     
@@ -543,7 +544,7 @@ def main():
         while running:
             state = "MENU"
             screen.blit(bg_img,(0,0))                     
-            pygame.event.pump()
+            #pygame.event.pump()
             play_button.draw(screen)
             quit_button.draw(screen)
             instructions_image.draw(screen)
@@ -563,27 +564,26 @@ def main():
             pygame.display.flip()
         
     def ending(player, screen):
-        
         player.pause = True
         pygame.mixer.music.load("gewonnen.mp3")
         pygame.mixer.music.play()
         new_game_button = Button("new_game_button.png", 200, 400)
+        new_game_button.draw(screen)
+        player.ending_animation()
         
         running = True
         
         while running:
-            pygame.event.pump()
             state = "ENDING"
-            player.ending_animation()
+            pygame.event.pump()
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                     pygame.quit()
-            new_game_button.draw(screen)
-            if new_game_button.rect.collidepoint(pygame.mouse.get_pos()):
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    game()
+                if new_game_button.rect.collidepoint(pygame.mouse.get_pos()):
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        game()
         
             pygame.display.flip()
 
@@ -593,6 +593,7 @@ def main():
         pygame.mixer.music.load("game_over.mp3")
         pygame.mixer.music.play()
         game_over_button = Button("game_over_button.png", 200, 400)
+        game_over_button.draw(screen)
         
         running = True
         
@@ -603,10 +604,9 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
                     pygame.quit()
-            game_over_button.draw(screen)
-            if game_over_button.rect.collidepoint(pygame.mouse.get_pos()):
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    game()
+                if game_over_button.rect.collidepoint(pygame.mouse.get_pos()):
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        game()
             pygame.display.flip()
         
 
