@@ -8,6 +8,7 @@ from pygame import mixer
 #digitaalinen kello
 #animaatio/kuva, kun tulee ending() tai game over()
 #munia ei aina ilmesty
+#ohjeet: nuolinäppäimet, pause
 
 WIDTH = 700
 HEIGHT = 700
@@ -146,7 +147,7 @@ class Player(Sprite):
         if key[pygame.K_o]: 
             self.pause = False
 
-
+            
         if self.pause == False:
             hsp = 0 
 
@@ -500,7 +501,7 @@ class Game_clock():
     
     def __init__(self):
         self.game_clock_font = pygame.font.SysFont(None,50)
-        self.game_clock = 5
+        self.game_clock = 10
         self.elapsed_time = 0
     
     
@@ -565,7 +566,6 @@ def main():
         
     def ending(player, screen):
         player.pause = True
-        player.ending_animation()
         pygame.mixer.music.load("gewonnen.mp3")
         pygame.mixer.music.play()
         new_game_button = Button("new_game_button.png", 200, 400)
@@ -576,6 +576,8 @@ def main():
         while running:
             state = "ENDING"
             pygame.event.pump()
+            player.ending_animation()
+            player.draw(screen)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -600,6 +602,8 @@ def main():
         while running:
             state = "GAME OVER"
             pygame.event.pump()
+            player.game_over_animation()
+            player.draw(screen)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -725,8 +729,7 @@ def main():
             if player.pause == False:
                 game_clock.update()
             game_clock.draw(screen)
-            
-            
+               
             if player.pause == False:
                 score.update(player,eggs)
             for enemy in enemies:
