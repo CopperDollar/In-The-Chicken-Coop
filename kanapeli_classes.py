@@ -143,7 +143,7 @@ class Player(Sprite):
         key = pygame.key.get_pressed()
         if key[pygame.K_p]:
             self.pause = True
-        if key[pygame.K_o] and game_clock.update() > 0:
+        if key[pygame.K_o]: 
             self.pause = False
 
 
@@ -565,18 +565,18 @@ def main():
         
     def ending(player, screen):
         player.pause = True
+        player.ending_animation()
         pygame.mixer.music.load("gewonnen.mp3")
         pygame.mixer.music.play()
         new_game_button = Button("new_game_button.png", 200, 400)
         new_game_button.draw(screen)
-        player.ending_animation()
         
         running = True
         
         while running:
             state = "ENDING"
             pygame.event.pump()
-            
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
