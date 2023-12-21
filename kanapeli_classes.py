@@ -6,9 +6,8 @@ from pygame import mixer
 #Chicken Single Alarm Call
 #kana ei menetä energiaa, kun osuu viholliskanan perään
 #digitaalinen kello
-#animaatio/kuva, kun tulee ending() tai game over()
+#ending()- ja game over -animaatioissa vanha kuva jää taustalle
 #munia ei aina ilmesty
-#ohjeet: nuolinäppäimet, pause
 
 WIDTH = 700
 HEIGHT = 700
@@ -144,7 +143,7 @@ class Player(Sprite):
         key = pygame.key.get_pressed()
         if key[pygame.K_p]:
             self.pause = True
-        if key[pygame.K_o]: 
+        if key[pygame.K_c]: 
             self.pause = False
 
             
@@ -538,7 +537,9 @@ def main():
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
         play_button = Button("play_button.png", 40, 500)
         quit_button = Button("quit_button.png", 370, 500)
-        instructions_image = Button("instructions_image.png", 180, 100)
+        instructions_image = Button("instructions_image.png", 40, 60)
+        instructions_image02 = Button("instructions_image02.png", 370, 60)
+       
         
         running = True
         
@@ -549,7 +550,7 @@ def main():
             play_button.draw(screen)
             quit_button.draw(screen)
             instructions_image.draw(screen)
-            
+            instructions_image02.draw(screen)
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -736,32 +737,32 @@ def main():
                 if player.pause == False:
                     enemy.update(boxes, nests)
                 enemy.draw(screen)
-            if time_now - start_time >= fox1_appear_time and fox1_appeared == False:
+            if time_now - start_time >= fox1_appear_time and player.pause == False and fox1_appeared == False:
                 fox1_appear_time = time_now
                 fox1 = Fox(0, 535)
                 foxes.add(fox1)
                 fox1_appeared = True
-            if fox1_appeared == True and fox2_appeared == False:
+            if fox1_appeared == True and player.pause == False and fox2_appeared == False:
                 if time_now - fox1_appear_time >= 6000:
                     fox2_appear_time = time_now
                     fox2 = Fox(0, 535)
                     foxes.add(fox2)
                     fox2_appeared = True
-            if fox2_appeared == True and fox3_appeared == False:
+            if fox2_appeared == True and player.pause == False and fox3_appeared == False:
                 if time_now - fox2_appear_time >= 8000:
                     fox3_appear_time = time_now
                     fox3 = Fox(0, 280)
                     foxes.add(fox3)
                     fox3_appeared = True
             
-            if fox3_appeared == True and fox4_appeared == False:
+            if fox3_appeared == True and player.pause == False and fox4_appeared == False:
                 if time_now - fox3_appear_time >= 1500:
                     fox4_appear_time = time_now
                     fox4 = Fox(0, 280)
                     foxes.add(fox4)
                     fox4_appeared = True
             
-            if fox4_appeared == True and fox5_appeared == False:
+            if fox4_appeared == True and player.pause == False and fox5_appeared == False:
                 if time_now - fox4_appear_time >= 4000:
                     fox5_appear_time = time_now
                     fox5 = Fox(0, 280)
