@@ -549,13 +549,13 @@ def main():
     state = "MENU"
     pygame.init()
     pygame.mixer.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 
     def menu():
         
         bg_img = pygame.image.load("background.png")
         bg_img = pygame.transform.scale(bg_img,(700,700))
-        screen = pygame.display.set_mode((WIDTH, HEIGHT))
         play_button = Button("play_button.png", 40, 500)
         quit_button = Button("quit_button.png", 370, 500)
         instructions_image = Button("instructions_image.png", 40, 60)
@@ -592,6 +592,7 @@ def main():
         pygame.mixer.music.play()
         new_game_button = Button("new_game_button.png", 200, 400)
         new_game_button.draw(screen)
+        
         
         running = True
         
@@ -641,7 +642,6 @@ def main():
         start_time = 0
         bg_img = pygame.image.load("background.png")
         bg_img = pygame.transform.scale(bg_img,(700,700))
-        screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.mixer.music.load("background_music.mp3") 
         pygame.mixer.music.play()
         clock = pygame.time.Clock()
