@@ -4,7 +4,6 @@ from pygame import mixer
 #pixabay Keyframe_Audio: Winner (taustamusiikki)
 #pixabay Gewonnen2, WinSquare, Power up sparkle 2 (ending)
 #Chicken Single Alarm Call
-#kana ei menetä energiaa, kun osuu viholliskanan perään
 #digitaalinen kello
 #ending()- ja game over -animaatioissa vanha kuva jää taustalle
 #munia ei aina ilmesty
@@ -61,6 +60,7 @@ class Player(Sprite):
         self.gravity = 1
         self.min_jumpspeed = 3
         self.prev_key = pygame.key.get_pressed()
+        self.direction = ""
         self.last_direction = "right"
         self.last_collision_time = 0
         self.hit_sound = pygame.mixer.Sound("hit_sound.wav")
@@ -100,16 +100,29 @@ class Player(Sprite):
         collide_boxes = pygame.sprite.spritecollide(self, boxes, False)
         self.rect.move_ip([-x, -y])
         return collide_boxes
-
-   
+    
+    
+    #def check_collision_with_enemy(self, x, y, enemies):
+        #collide_enemy = pygame.sprite.spritecollide(self, enemies, False)
+        #if collide_enemy:
+            #if self.facing_left:
+                #self.image = pygame.transform.flip(self.hit_image, True, False)
+            #else:
+                #self.image = self.hit_image
+        #return collide_enemy
+    
     def check_collision_with_enemy(self, x, y, enemies):
         collide_enemy = pygame.sprite.spritecollide(self, enemies, False)
+        return collide_enemy
+    
+    
+    def enemy_hit_animation(self, enemies):
+        collide_enemy = self.check_collision_with_enemy(0, 1, enemies)
         if collide_enemy:
             if self.facing_left:
                 self.image = pygame.transform.flip(self.hit_image, True, False)
             else:
                 self.image = self.hit_image
-        return collide_enemy
         
 
     def check_collision_with_fox(self, x, y, foxes):
@@ -128,13 +141,10 @@ class Player(Sprite):
         
     
     def decrease_health(self, enemies, foxes, health_bar):
-        collide_enemy = self.check_collision_with_enemy(0, 1, enemies)
-        collide_fox = self.check_collision_with_fox(0, 1, foxes)
         current_time = pygame.time.get_ticks()
-        if collide_enemy or collide_fox:
-            if current_time - self.last_collision_time > 1000:
-                self.last_collision_time = current_time
-                health_bar.hp -= 25
+        if current_time - self.last_collision_time > 1000:
+            self.last_collision_time = current_time
+            health_bar.hp -= 25
         return health_bar.hp
     
             
@@ -164,10 +174,7 @@ class Player(Sprite):
                 collide_enemy = self.check_collision_with_enemy(0, 1, pygame.sprite.Group(enemy))
                 
                 if collide_enemy:
-                    if self.facing_left:
-                        self.image = pygame.transform.flip(self.hit_image, True, False)
-                    else:
-                        self.image = self.hit_image
+                    self.enemy_hit_animation(enemies)
                     self.decrease_health(enemies, foxes, health_bar)
                     self.hit_sound.play()
 
@@ -187,17 +194,22 @@ class Player(Sprite):
             
             if key[pygame.K_LEFT]:
                 self.facing_left = True
-                if collide_enemy or collide_fox:
-                    self.image = pygame.transform.flip(self.hit_image, True, False)
-                else:
+                if collide_enemy:
+                    self.enemy_hit_animation(enemies)
+                if collide_fox:
+                    self.fox_hit_animation(foxes)
+                    
+                if not collide_enemy and not collide_fox:
                     self.walk_animation()
                 hsp = -self.speed
                 self.last_direction = "left"
                 
             elif key[pygame.K_RIGHT]:
                 self.facing_left = False
-                if collide_enemy or collide_fox:
-                    self.image = self.hit_image
+                if collide_enemy:
+                    self.enemy_hit_animation(enemies)
+                if collide_fox:
+                    self.fox_hit_animation(foxes)
 
                 if not collide_enemy and not collide_fox:
                     self.walk_animation()
@@ -207,16 +219,20 @@ class Player(Sprite):
             else:
                 if self.last_direction == "left":
                     self.facing_left = True
-                    if collide_enemy or collide_fox:
-                        self.image = pygame.transform.flip(self.hit_image, True, False)
+                    if collide_enemy:
+                        self.enemy_hit_animation(enemies)
+                    if collide_fox:
+                        self.fox_hit_animation(foxes)
 
                     else:
                         self.image = pygame.transform.flip(self.stand_image, True, False)
                         
                 elif self.last_direction == "right":
                     self.facing_left = False
-                    if collide_enemy or collide_fox:
-                        self.image = self.hit_image
+                    if collide_enemy:
+                        self.enemy_hit_animation(enemies)
+                    if collide_fox:
+                        self.fox_hit_animation(foxes)
 
                     else:
                         self.image = self.stand_image
@@ -239,10 +255,8 @@ class Player(Sprite):
             
             #gravity
             if self.vsp < 10 and not on_ground:
-                if collide_fox and self.last_direction == "right":
-                    self.image = self.hit_image
-                if collide_fox and self.last_direction == "left":
-                    self.image = pygame.transform.flip(self.hit_image, True, False)
+                if collide_fox:
+                    self.fox_hit_animation(foxes)
                 if not collide_fox:
                     self.jump_animation()
                 self.vsp += self.gravity
@@ -500,7 +514,7 @@ class Game_clock():
     
     def __init__(self):
         self.game_clock_font = pygame.font.SysFont(None,50)
-        self.game_clock = 10
+        self.game_clock = 5
         self.elapsed_time = 0
     
     
@@ -829,6 +843,8 @@ def main():
 
 
 main()
+
+
 
 
 
