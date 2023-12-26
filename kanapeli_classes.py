@@ -506,7 +506,7 @@ class Game_clock():
     
     def __init__(self):
         self.game_clock_font = pygame.font.SysFont(None,50)
-        self.game_clock = 5
+        self.game_clock = 15
         self.elapsed_time = 0
     
     
