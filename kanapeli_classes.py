@@ -4,9 +4,9 @@ from pygame import mixer
 #pixabay Keyframe_Audio: Winner (taustamusiikki)
 #pixabay Gewonnen2, WinSquare, Power up sparkle 2 (ending)
 #Chicken Single Alarm Call
-#kana ei menetä energiaa, kun osuu viholliskanan perään
 #digitaalinen kello
 #ending()- ja game over -animaatioissa vanha kuva jää taustalle
+#siipienräpytysanimaatio ei aina toimi (joskus kana jää seisomaan)
 #munia ei aina ilmesty
 
 WIDTH = 700
