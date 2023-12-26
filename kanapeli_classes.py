@@ -105,6 +105,8 @@ class Player(Sprite):
     
     def check_collision_with_enemy(self, x, y, enemies):
         collide_enemy = pygame.sprite.spritecollide(self, enemies, False)
+        if collide_enemy:
+            print("nyt osui, terv. check_collision_with_enemy")
         return collide_enemy
     
     
@@ -166,6 +168,7 @@ class Player(Sprite):
                 collide_enemy = self.check_collision_with_enemy(0, 1, pygame.sprite.Group(enemy))
                 
                 if collide_enemy:
+                    print("osui, terv. update-metodi")
                     self.enemy_hit_animation(enemies)
                     self.decrease_health(enemies, foxes, health_bar)
                     self.hit_sound.play()
@@ -249,7 +252,9 @@ class Player(Sprite):
             if self.vsp < 10 and not on_ground:
                 if collide_fox:
                     self.fox_hit_animation(foxes)
-                if not collide_fox:
+                if collide_enemy:
+                    self.enemy_hit_animation(enemies)
+                if not collide_fox and not collide_enemy:
                     self.jump_animation()
                 self.vsp += self.gravity
                 
@@ -506,7 +511,7 @@ class Game_clock():
     
     def __init__(self):
         self.game_clock_font = pygame.font.SysFont(None,50)
-        self.game_clock = 15
+        self.game_clock = 10
         self.elapsed_time = 0
     
     
@@ -733,6 +738,7 @@ def main():
             nests.draw(screen)
             player.update(boxes, enemies, health_bar, foxes, game_clock)
             player.draw(screen)
+
             if player.pause == False:
                 game_clock.update()
             game_clock.draw(screen)
