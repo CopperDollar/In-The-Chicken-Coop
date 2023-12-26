@@ -105,8 +105,8 @@ class Player(Sprite):
     
     def check_collision_with_enemy(self, x, y, enemies):
         collide_enemy = pygame.sprite.spritecollide(self, enemies, False)
-        if collide_enemy:
-            print("nyt osui, terv. check_collision_with_enemy")
+        #if collide_enemy:
+            #print("nyt osui, terv. check_collision_with_enemy")
         return collide_enemy
     
     
@@ -117,6 +117,7 @@ class Player(Sprite):
                 self.image = pygame.transform.flip(self.hit_image, True, False)
             else:
                 self.image = self.hit_image
+
         
 
     def check_collision_with_fox(self, x, y, foxes):
@@ -145,6 +146,11 @@ class Player(Sprite):
         
     def update(self, boxes, enemies, health_bar, foxes, game_clock):
         key = pygame.key.get_pressed()
+        
+        #Ei auttanut siihen, että kanan vanha kuva jää taustalle, kun ending_animation pyörähtää käyntiin
+        if game_clock.return_game_clock() == 0:
+            self.ending_animation()
+            
         if key[pygame.K_p]:
             self.pause = True
         if key[pygame.K_c]: 
@@ -152,8 +158,9 @@ class Player(Sprite):
 
             
         if self.pause == False:
+                
             hsp = 0 
-
+            
             collide_boxes = self.check_collision_with_boxes(0, 1, boxes)
             collide_fox = self.check_collision_with_fox(0, 1, foxes)
             
@@ -311,7 +318,7 @@ class Enemy(Sprite):
         self.walk_cycle = [pygame.image.load(f"enemy_walk{i:0>2}.png") for i in range(1, 5)]
         self.animation_index = 0
         self.facing_left = False
-        self.hsp = 4
+        self.hsp = 1
         self.rect.x = x
         self.rect.y = y
         self.direction = 1
@@ -350,8 +357,11 @@ class Enemy(Sprite):
         self.walk_animation()
         if self.direction == -1:
             self.facing_left = True
+            self.rect.x -= self.hsp
         if self.direction == 1:
             self.facing_left = False
+            self.rect.x += self.hsp
+
 
 
         
@@ -511,7 +521,7 @@ class Game_clock():
     
     def __init__(self):
         self.game_clock_font = pygame.font.SysFont(None,50)
-        self.game_clock = 10
+        self.game_clock = 15
         self.elapsed_time = 0
     
     
