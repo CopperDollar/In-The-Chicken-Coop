@@ -4,6 +4,7 @@ from pygame import mixer
 #pixabay Keyframe_Audio: Winner (taustamusiikki)
 #pixabay Gewonnen2, WinSquare, Power up sparkle 2 (ending)
 #Chicken Single Alarm Call
+#kana ei menetä energiaa, kun osuu viholliskanan perään
 #digitaalinen kello
 #ending()- ja game over -animaatioissa vanha kuva jää taustalle
 #munia ei aina ilmesty
@@ -101,15 +102,6 @@ class Player(Sprite):
         self.rect.move_ip([-x, -y])
         return collide_boxes
     
-    
-    #def check_collision_with_enemy(self, x, y, enemies):
-        #collide_enemy = pygame.sprite.spritecollide(self, enemies, False)
-        #if collide_enemy:
-            #if self.facing_left:
-                #self.image = pygame.transform.flip(self.hit_image, True, False)
-            #else:
-                #self.image = self.hit_image
-        #return collide_enemy
     
     def check_collision_with_enemy(self, x, y, enemies):
         collide_enemy = pygame.sprite.spritecollide(self, enemies, False)
