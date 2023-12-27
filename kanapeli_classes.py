@@ -590,8 +590,8 @@ def main():
         player.pause = True
         pygame.mixer.music.load("gewonnen.mp3")
         pygame.mixer.music.play()
-        #bg_img = pygame.image.load("background.png")
-        #bg_img = pygame.transform.scale(bg_img,(700,700))
+        bg_img = pygame.image.load("background.png")
+        bg_img = pygame.transform.scale(bg_img,(700,700))
         new_game_button = Button("new_game_button.png", 200, 400)
         
         
@@ -601,8 +601,7 @@ def main():
         while running:
             state = "ENDING"
             pygame.event.pump()
-            bg_img = pygame.image.load("background.png")
-            bg_img = pygame.transform.scale(bg_img,(700,700))
+            screen.blit(bg_img,(0,0)) 
             boxes.draw(screen)
             nests.draw(screen)
             
