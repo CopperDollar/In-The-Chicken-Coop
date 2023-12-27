@@ -86,6 +86,9 @@ class Player(Sprite):
             
             if self.animation_index >= len(self.ending_cycle):
                 self.animation_index = 0
+        else:
+            self.animation_index = 0
+                
                 
 
     def game_over_animation(self):
@@ -521,7 +524,7 @@ class Game_clock():
     
     def __init__(self):
         self.game_clock_font = pygame.font.SysFont(None,50)
-        self.game_clock = 10
+        self.game_clock = 5
         self.elapsed_time = 0
     
     
