@@ -521,7 +521,7 @@ class Game_clock():
     
     def __init__(self):
         self.game_clock_font = pygame.font.SysFont(None,50)
-        self.game_clock = 10
+        self.game_clock = 5
         self.elapsed_time = 0
     
     
@@ -586,21 +586,36 @@ def main():
         
             pygame.display.flip()
         
-    def ending(player, screen):
+    def ending(player, screen, boxes, nests, enemies, foxes, health_bar, eggs, score, game_clock):
         player.pause = True
         pygame.mixer.music.load("gewonnen.mp3")
         pygame.mixer.music.play()
+        #bg_img = pygame.image.load("background.png")
+        #bg_img = pygame.transform.scale(bg_img,(700,700))
         new_game_button = Button("new_game_button.png", 200, 400)
-        new_game_button.draw(screen)
         
         
+
         running = True
         
         while running:
             state = "ENDING"
             pygame.event.pump()
+            bg_img = pygame.image.load("background.png")
+            bg_img = pygame.transform.scale(bg_img,(700,700))
+            boxes.draw(screen)
+            nests.draw(screen)
+            
             player.ending_animation()
             player.draw(screen)
+            
+            game_clock.draw(screen)
+            enemies.draw(screen)
+            foxes.draw(screen)
+            health_bar.draw(screen)
+            eggs.draw(screen)
+            score.draw(screen)
+            new_game_button.draw(screen)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -806,7 +821,7 @@ def main():
 
             #end the game when the time limit is reached
             if player.pause == False and game_clock.return_game_clock() == 0:
-                ending(player, screen)
+                ending(player, screen, boxes, nests, enemies, foxes, health_bar, eggs, score, game_clock)
             
             if health_bar.hp == 0:
                 game_over(player, screen)
