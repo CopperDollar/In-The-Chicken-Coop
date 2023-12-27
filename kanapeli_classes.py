@@ -147,9 +147,6 @@ class Player(Sprite):
     def update(self, boxes, enemies, health_bar, foxes, game_clock):
         key = pygame.key.get_pressed()
         
-        #Ei auttanut siihen, että kanan vanha kuva jää taustalle, kun ending_animation pyörähtää käyntiin
-        if game_clock.return_game_clock() == 0:
-            self.ending_animation()
             
         if key[pygame.K_p]:
             self.pause = True
