@@ -147,6 +147,9 @@ class Player(Sprite):
     def update(self, boxes, enemies, health_bar, foxes, game_clock):
         key = pygame.key.get_pressed()
         
+        #Ei auttanut siihen, että kanan vanha kuva jää taustalle, kun ending_animation pyörähtää käyntiin
+        #if game_clock.return_game_clock() == 0:
+            #self.ending_animation()
             
         if key[pygame.K_p]:
             self.pause = True
@@ -518,7 +521,7 @@ class Game_clock():
     
     def __init__(self):
         self.game_clock_font = pygame.font.SysFont(None,50)
-        self.game_clock = 5
+        self.game_clock = 10
         self.elapsed_time = 0
     
     
@@ -603,6 +606,7 @@ def main():
             nests.draw(screen)
             
             player.ending_animation()
+            player.update(boxes, enemies, health_bar, foxes, game_clock)
             player.draw(screen)
             
             game_clock.draw(screen)
@@ -624,20 +628,38 @@ def main():
             pygame.display.flip()
 
         
-    def game_over(player, screen):
+    def game_over(player, screen, boxes, nests, enemies, foxes, health_bar, eggs, score, game_clock):
         player.pause = True
         pygame.mixer.music.load("game_over.mp3")
         pygame.mixer.music.play()
+        
+        bg_img = pygame.image.load("background.png")
+        bg_img = pygame.transform.scale(bg_img,(700,700))
         game_over_button = Button("game_over_button.png", 200, 400)
-        game_over_button.draw(screen)
+        
         
         running = True
         
         while running:
             state = "GAME OVER"
             pygame.event.pump()
+            screen.blit(bg_img,(0,0)) 
+            boxes.draw(screen)
+            nests.draw(screen)
+            
             player.game_over_animation()
+            player.update(boxes, enemies, health_bar, foxes, game_clock)
             player.draw(screen)
+            
+            game_clock.draw(screen)
+            enemies.draw(screen)
+            foxes.draw(screen)
+            health_bar.draw(screen)
+            eggs.draw(screen)
+            score.draw(screen)
+            game_over_button.draw(screen)
+
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -807,7 +829,7 @@ def main():
             foxes.draw(screen)
             health_bar.draw(screen)
             if health_bar.hp == 0:
-                game_over(player, screen)
+                game_over(player, screen, boxes, nests, enemies, foxes, health_bar, eggs, score, game_clock)
             if player.pause == False:
                 eggs.update(boxes,eggs)
             eggs.draw(screen)
@@ -819,8 +841,8 @@ def main():
             if player.pause == False and game_clock.return_game_clock() == 0:
                 ending(player, screen, boxes, nests, enemies, foxes, health_bar, eggs, score, game_clock)
             
-            if health_bar.hp == 0:
-                game_over(player, screen)
+            #if health_bar.hp == 0:
+                #game_over(player, screen, boxes, nests, enemies, foxes, health_bar, eggs, score, game_clock)
                 
             pygame.display.flip()
 
