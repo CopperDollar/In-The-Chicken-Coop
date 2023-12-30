@@ -102,17 +102,9 @@ class Player(Sprite):
     def check_collision_with_enemy(self, x, y, enemies):
         collide_enemy = pygame.sprite.spritecollide(self, enemies, False)
         return collide_enemy
-    
-    
-    def enemy_hit_animation(self, enemies):
-        collide_enemy = self.check_collision_with_enemy(0, 1, enemies)
-        if collide_enemy:
-            if self.facing_left:
-                self.image = pygame.transform.flip(self.hit_image, True, False)
-            else:
-                self.image = self.hit_image
 
-        
+
+
 
     def check_collision_with_fox(self, x, y, foxes):
         collide_fox = pygame.sprite.spritecollide(self, foxes, False)
@@ -166,7 +158,6 @@ class Player(Sprite):
                 collide_enemy = self.check_collision_with_enemy(0, 1, pygame.sprite.Group(enemy))
                 
                 if collide_enemy:
-                    self.enemy_hit_animation(enemies)
                     self.decrease_health(enemies, foxes, health_bar)
                     self.hit_sound.play()
 
@@ -186,24 +177,20 @@ class Player(Sprite):
             
             if key[pygame.K_LEFT]:
                 self.facing_left = True
-                if collide_enemy:
-                    self.enemy_hit_animation(enemies)
                 if collide_fox:
                     self.fox_hit_animation(foxes)
                     
-                if not collide_enemy and not collide_fox:
+                else:
                     self.walk_animation()
                 hsp = -self.speed
                 self.last_direction = "left"
                 
             elif key[pygame.K_RIGHT]:
-                self.facing_left = False
-                if collide_enemy:
-                    self.enemy_hit_animation(enemies)
+                self.facing_left = False 
                 if collide_fox:
                     self.fox_hit_animation(foxes)
 
-                if not collide_enemy and not collide_fox:
+                else:
                     self.walk_animation()
                 hsp = self.speed
                 self.last_direction = "right"
@@ -211,8 +198,6 @@ class Player(Sprite):
             else:
                 if self.last_direction == "left":
                     self.facing_left = True
-                    if collide_enemy:
-                        self.enemy_hit_animation(enemies)
                     if collide_fox:
                         self.fox_hit_animation(foxes)
 
@@ -221,8 +206,7 @@ class Player(Sprite):
                         
                 elif self.last_direction == "right":
                     self.facing_left = False
-                    if collide_enemy:
-                        self.enemy_hit_animation(enemies)
+                    
                     if collide_fox:
                         self.fox_hit_animation(foxes)
 
@@ -249,9 +233,7 @@ class Player(Sprite):
             if self.vsp < 10 and not on_ground:
                 if collide_fox:
                     self.fox_hit_animation(foxes)
-                if collide_enemy:
-                    self.enemy_hit_animation(enemies)
-                if not collide_fox and not collide_enemy:
+                else:
                     self.jump_animation()
                 self.vsp += self.gravity
                 
@@ -873,6 +855,7 @@ def main():
 
 
 main()
+
 
 
 
