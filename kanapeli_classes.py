@@ -1,13 +1,6 @@
 import pygame, numpy, random
 from pygame import mixer
 
-#pixabay Keyframe_Audio: Winner (taustamusiikki)
-#pixabay Gewonnen2, WinSquare, Power up sparkle 2 (ending)
-#Chicken Single Alarm Call
-#digitaalinen kello
-#ending()- ja game over -animaatioissa vanha kuva jää taustalle
-#siipienräpytysanimaatio ei aina toimi (joskus kana jää seisomaan)
-#munia ei aina ilmesty
 
 WIDTH = 700
 HEIGHT = 700
@@ -108,8 +101,6 @@ class Player(Sprite):
     
     def check_collision_with_enemy(self, x, y, enemies):
         collide_enemy = pygame.sprite.spritecollide(self, enemies, False)
-        #if collide_enemy:
-            #print("nyt osui, terv. check_collision_with_enemy")
         return collide_enemy
     
     
@@ -150,9 +141,6 @@ class Player(Sprite):
     def update(self, boxes, enemies, health_bar, foxes, game_clock):
         key = pygame.key.get_pressed()
         
-        #Ei auttanut siihen, että kanan vanha kuva jää taustalle, kun ending_animation pyörähtää käyntiin
-        #if game_clock.return_game_clock() == 0:
-            #self.ending_animation()
             
         if key[pygame.K_p]:
             self.pause = True
@@ -178,7 +166,6 @@ class Player(Sprite):
                 collide_enemy = self.check_collision_with_enemy(0, 1, pygame.sprite.Group(enemy))
                 
                 if collide_enemy:
-                    print("osui, terv. update-metodi")
                     self.enemy_hit_animation(enemies)
                     self.decrease_health(enemies, foxes, health_bar)
                     self.hit_sound.play()
@@ -524,7 +511,7 @@ class Game_clock():
     
     def __init__(self):
         self.game_clock_font = pygame.font.SysFont(None,50)
-        self.game_clock = 5
+        self.game_clock = 100
         self.elapsed_time = 0
     
     
@@ -570,7 +557,7 @@ def main():
         while running:
             state = "MENU"
             screen.blit(bg_img,(0,0))                     
-            #pygame.event.pump()
+            pygame.event.pump()
             play_button.draw(screen)
             quit_button.draw(screen)
             instructions_image.draw(screen)
@@ -723,7 +710,7 @@ def main():
         
         boxes.add(Box(380, 290)) #yksittäinen keskellä
         
-        boxes.add(Box(665, 250))
+        boxes.add(Box(665, 250)) #yksittäinen oik reunassa
         
         
         boxes.add(Box(500, 100)) #ylärivi keskellä
@@ -759,7 +746,7 @@ def main():
         score = Score(player,eggs)
         
 
-        fox1_appear_time = random.randrange(2000, 3000)
+        fox1_appear_time = random.randrange(15000, 30000)
         fox2_appear_time = 0
         fox3_appear_time = 0
         fox3_appear_time = 0
@@ -801,13 +788,13 @@ def main():
                 foxes.add(fox1)
                 fox1_appeared = True
             if fox1_appeared == True and player.pause == False and fox2_appeared == False:
-                if time_now - fox1_appear_time >= 6000:
+                if time_now - fox1_appear_time >= 8000:
                     fox2_appear_time = time_now
                     fox2 = Fox(0, 535)
                     foxes.add(fox2)
                     fox2_appeared = True
             if fox2_appeared == True and player.pause == False and fox3_appeared == False:
-                if time_now - fox2_appear_time >= 8000:
+                if time_now - fox2_appear_time >= 10000:
                     fox3_appear_time = time_now
                     fox3 = Fox(0, 280)
                     foxes.add(fox3)
@@ -821,7 +808,7 @@ def main():
                     fox4_appeared = True
             
             if fox4_appeared == True and player.pause == False and fox5_appeared == False:
-                if time_now - fox4_appear_time >= 4000:
+                if time_now - fox4_appear_time >= 15000:
                     fox5_appear_time = time_now
                     fox5 = Fox(0, 280)
                     foxes.add(fox5)
@@ -844,12 +831,11 @@ def main():
             if player.pause == False and game_clock.return_game_clock() == 0:
                 ending(player, screen, boxes, nests, enemies, foxes, health_bar, eggs, score, game_clock)
             
-            #if health_bar.hp == 0:
-                #game_over(player, screen, boxes, nests, enemies, foxes, health_bar, eggs, score, game_clock)
+
                 
             pygame.display.flip()
 
-            clock.tick(45)
+            clock.tick(40)
             
     
             
