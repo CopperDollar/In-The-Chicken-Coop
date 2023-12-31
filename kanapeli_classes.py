@@ -100,7 +100,9 @@ class Player(Sprite):
     
     
     def check_collision_with_enemy(self, x, y, enemies):
-        collide_enemy = pygame.sprite.spritecollide(self, enemies, False)
+        self.rect.move_ip([x, y])
+        collide_enemy = pygame.sprite.spritecollide(self, enemies, False)      
+        self.rect.move_ip([-x, -y])
         return collide_enemy
 
 
@@ -492,7 +494,7 @@ class Button(Sprite):
 class Game_clock():
     
     def __init__(self):
-        self.game_clock_font = pygame.font.SysFont(None,50)
+        self.game_clock_font = pygame.font.SysFont(None, 50)
         self.game_clock = 100
         self.elapsed_time = 0
     
